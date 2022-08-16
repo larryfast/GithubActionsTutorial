@@ -62,15 +62,23 @@ jobs:
           A_test_secret2: ${{ secrets.my_first_secret }}
           A_GITHUB_TOKEN:  ${{secrets.GITHUB_TOKEN}} 
           
+  build2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run a one-liner
+        run: env |sort
+
   build3:
     needs: build1
     runs-on: ubuntu-latest
     steps:
       - name: Run a one-liner
         run: env |sort
-        
-  build2:
+
+  build4:
+    needs: build1
     runs-on: ubuntu-latest
     steps:
       - name: Run a one-liner
         run: env |sort
+        
