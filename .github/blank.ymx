@@ -51,7 +51,7 @@ jobs:
           echo 
           echo WARNING: Its easy to expose secret values:
           echo my_test_secret2=`echo ${{secrets.my_first_secret}} |rev`
-          echo GITHUB_TOKEN=`${{secrets.GITHUB_TOKEN}} |rev`
+          echo GITHUB_TOKEN=`echo ${{secrets.GITHUB_TOKEN}} |rev`
           echo
           env | sort
         env:
