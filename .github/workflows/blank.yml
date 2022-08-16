@@ -47,18 +47,28 @@ jobs:
         run: |
           echo CICD script should include self-tests and be paranoid about detecting errors
           echo
-          echo "CICD can easily fail because of typos = \$\{\{secrets.my_test_secret2\}\} "
-          echo "CICD can easily fail because of typos = ${{secrets.my_first_secret}}"
+          echo "CICD can easily fail because of typos = \$\{\{secrets.my_first_secretXX\}\} "
+          echo "CICD can easily fail because of typos = ${{secrets.my_first_secretXX}}"
           echo 
-          echo WARNING: Its easy to expose secret values:
-          echo my_test_secret2=`echo ${{secrets.my_first_secret}} |rev`
+          echo WARNING: Its easy to expose secret values 
+          echo Only a few developers should have access to CICD code
+          echo The following values are exposed simply by reversing the strings
+          echo my_test_secret=`echo ${{secrets.my_first_secret}} |rev`
           echo GITHUB_TOKEN=`echo ${{secrets.GITHUB_TOKEN}} |rev`
           echo
           env | sort
         env:
-          new_var: hello_larry
-          my_test_secret2: ${{ secrets.my_first_secret }}
-
+          A_new_var: hello_larry
+          A_test_secret2: ${{ secrets.my_first_secret }}
+          A_GITHUB_TOKEN:  ${{secrets.GITHUB_TOKEN}} 
+          
+  build3:
+    needs: build1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run a one-liner
+        run: env |sort
+        
   build2:
     runs-on: ubuntu-latest
     steps:
