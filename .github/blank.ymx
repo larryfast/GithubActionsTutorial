@@ -47,7 +47,7 @@ jobs:
           echo CICD script should include self-tests and be paranoid about detecting errors
           echo
           echo "CICD can easily fail because of typos = \$\{\{secrets.my_test_secret2\}\} "
-          echo "CICD can easily fail because of typos = ${{secrets.my_test_secret2}}"
+          echo "CICD can easily fail because of typos = ${{secrets.my_first_secret}}"
           echo 
           echo WARNING: Its easy to expose secret values:
           echo my_test_secret2=`echo ${{secrets.my_first_secret}} |rev`
