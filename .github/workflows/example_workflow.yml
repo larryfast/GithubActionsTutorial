@@ -55,7 +55,7 @@ jobs:
 
   # This workflow contains a single job called "build"
   job2:
-    name: job1 expose secrets - WARNING!
+    name: job2 expose secrets - WARNING!
 
     # Every JOB runs on it's own virtual machine
     # These are created for each job and destroyed at the end
@@ -73,8 +73,13 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: WARNING! it's easy to expose secrets
         run: |
+          echo While Github does a great job keeping secrets out of the logs
+          echo This works in most cases BUT
+          echo Secrets are NOT SECURE!
+          echo 
           echo WARNING: Its easy to expose secret values 
-          echo Only a few developers should have access to CICD code
+          echo to anyone with write access to workflow code
+          echo Only a few developers should have access to workflow code
           echo The following values are exposed simply by reversing the strings
           echo 
           echo my_test_secret=`echo ${{secrets.A_test_secret}} |rev`
