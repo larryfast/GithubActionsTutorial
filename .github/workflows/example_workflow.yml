@@ -4,14 +4,16 @@ name: workflow_example
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
+  # Triggers the workflow on push or pull request events 
+  # while primarily used for integration branches
+  # it's useful to run it on the workflow development branch automatically
   push:
     branches: [ "main", "devel_workflow" ]
   pull_request:
     branches: [ "main" ]
   label:
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Dispatch = run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       var1:
@@ -31,13 +33,29 @@ env:
 
   # import secrets - LF: I prefer the visibility of loading these globally
   # See Readme for more info on secrets and Credential management
-  my_test_secret: ${{ secrets.my_first_secret }}
+  A_test_secret: ${{ secrets.my_first_secret }}
+
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   job1:
-    name: job1 hello secrets
+    name: job1 log ENV vars
+    runs-on: ubuntu-latest
+    steps:
+      # Environment contents changes from job to job and as the job progresses
+      # ALL jobs should log the environment as it is crucial for debugging
+
+      - name: List env content
+        run: |
+          env |sort
+        env:
+          A_new_var: hello_larry
+          A_test_secret2: ${{ secrets.my_first_secret }}
+          A_GITHUB_TOKEN:  ${{secrets.GITHUB_TOKEN}} 
+
+  # This workflow contains a single job called "build"
+  job2:
+    name: job1 expose secrets - WARNING!
 
     # Every JOB runs on it's own virtual machine
     # These are created for each job and destroyed at the end
@@ -58,32 +76,27 @@ jobs:
           echo WARNING: Its easy to expose secret values 
           echo Only a few developers should have access to CICD code
           echo The following values are exposed simply by reversing the strings
-          echo my_test_secret=`echo ${{secrets.my_first_secret}} |rev`
+          echo 
+          echo my_test_secret=`echo ${{secrets.A_test_secret}} |rev`
           echo GITHUB_TOKEN=`echo ${{secrets.GITHUB_TOKEN}} |rev`
-          echo
-          env | sort
-        env:
-          A_new_var: hello_larry
-          A_test_secret2: ${{ secrets.my_first_secret }}
-          A_GITHUB_TOKEN:  ${{secrets.GITHUB_TOKEN}} 
-          
-  job2:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run a one-liner
-        run: env |sort
-
+              
   job3:
-    needs: job1
+    needs: job1 Sanity Tests - TBD
     runs-on: ubuntu-latest
     steps:
-      - name: Sanity Test
+      - name: Sanity Test1 
         run: |
           echo CICD script should include self-tests and be paranoid about detecting errors
           echo
           echo "CICD can easily fail because of typos = \$\{\{secrets.my_first_secretXX\}\} "
           echo "CICD can easily fail because of typos = ${{secrets.my_first_secretXX}}"
           echo 
+      - name: test for Nulls in Environment
+        run: echo TBD
+      - name: test connection to AWS TBD
+        run: echo TBD
+      - name: test JFrog access TBD
+        run: echo TBD
 
   job4:
     needs: job1
