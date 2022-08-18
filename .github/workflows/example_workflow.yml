@@ -81,7 +81,7 @@ jobs:
           echo GITHUB_TOKEN=`echo ${{secrets.GITHUB_TOKEN}} |rev`
               
   job3:
-    needs: job1 Sanity Tests - TBD
+    needs: job1 Sanity Tests TBD
     runs-on: ubuntu-latest
     steps:
       - name: Sanity Test1 
