@@ -1,1 +1,94 @@
-../example_workflow.yml
+# This is a basic workflow to help you get started with Actions
+
+name: workflow_example
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  push:
+    branches: [ "main", "devel_workflow" ]
+  pull_request:
+    branches: [ "main" ]
+  label:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      var1:
+        description: "var one"
+        default: "default string"
+        type: string
+        required: true
+      var2:
+        description: "var two"
+        type: boolean
+        default: false
+        required: true
+        
+
+env:
+  # set global environment variables
+
+  # import secrets - LF: I prefer the visibility of loading these globally
+  # See Readme for more info on secrets and Credential management
+  my_test_secret: ${{ secrets.my_first_secret }}
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  job1:
+    name: job1 hello secrets
+
+    # Every JOB runs on it's own virtual machine
+    # These are created for each job and destroyed at the end
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Check-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo CICD script should include self-tests and be paranoid about detecting errors
+
+      # Runs a set of commands using the runners shell
+      - name: WARNING! it's easy to expose secrets
+        run: |
+          echo WARNING: Its easy to expose secret values 
+          echo Only a few developers should have access to CICD code
+          echo The following values are exposed simply by reversing the strings
+          echo my_test_secret=`echo ${{secrets.my_first_secret}} |rev`
+          echo GITHUB_TOKEN=`echo ${{secrets.GITHUB_TOKEN}} |rev`
+          echo
+          env | sort
+        env:
+          A_new_var: hello_larry
+          A_test_secret2: ${{ secrets.my_first_secret }}
+          A_GITHUB_TOKEN:  ${{secrets.GITHUB_TOKEN}} 
+          
+  job2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run a one-liner
+        run: env |sort
+
+  job3:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sanity Test
+        run: |
+          echo CICD script should include self-tests and be paranoid about detecting errors
+          echo
+          echo "CICD can easily fail because of typos = \$\{\{secrets.my_first_secretXX\}\} "
+          echo "CICD can easily fail because of typos = ${{secrets.my_first_secretXX}}"
+          echo 
+
+  job4:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run a one-liner
+        run: env |sort
+        
